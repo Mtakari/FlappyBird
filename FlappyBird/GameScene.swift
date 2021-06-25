@@ -22,8 +22,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
     let wallCategory:UInt32 = 1 << 2
     let scoreCategory:UInt32 = 1 << 3
     let coinCategory:UInt32 = 1 << 4
-    //let itemCategory:UInt32 = 1 << 5
-   
+    
+    
     var score = 0
     var scoreLabelNode:SKLabelNode!
     var item = 0
@@ -54,7 +54,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
         setupScoreLabel()
         setupCoin()
         setupItemLabel()
-    
+        
     }
     func setupScoreLabel() {
         score = 0
@@ -75,8 +75,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
         bestScoreLabelNode.text = "Best Score:\(bestScore)"
         self.addChild(bestScoreLabelNode)
     }
-
-
+    
+    
     func setupGround(){
         let groundTexture = SKTexture(imageNamed: "ground")
         groundTexture.filteringMode = .nearest
@@ -98,132 +98,132 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
             scrollNode.addChild(sprite)
         }
     }
+    
+    func setupCloud() {
         
-        func setupCloud() {
+        let cloudTexture = SKTexture(imageNamed: "cloud")
+        cloudTexture.filteringMode = .nearest
+        
+        let needCloudNumber = Int(self.frame.size.width / cloudTexture.size().width) + 2
+        
+        let moveCloud = SKAction.moveBy(x: -cloudTexture.size().width, y: 0, duration: 20)
+        
+        let resetCloud = SKAction.moveBy(x: cloudTexture.size().width, y: 0, duration: 0)
+        
+        let repeatScrollCloud = SKAction.repeatForever(SKAction.sequence([moveCloud,resetCloud]))
+        
+        for i in 0..<needCloudNumber {
+            let sprite = SKSpriteNode(texture: cloudTexture)
+            sprite.zPosition = -100
             
-            let cloudTexture = SKTexture(imageNamed: "cloud")
-            cloudTexture.filteringMode = .nearest
+            sprite.position = CGPoint(
+                x: cloudTexture.size().width / 2 + cloudTexture.size().width * CGFloat(i),
+                y: self.size.height - cloudTexture.size().height / 2
+            )
             
-            let needCloudNumber = Int(self.frame.size.width / cloudTexture.size().width) + 2
             
-            let moveCloud = SKAction.moveBy(x: -cloudTexture.size().width, y: 0, duration: 20)
-            
-            let resetCloud = SKAction.moveBy(x: cloudTexture.size().width, y: 0, duration: 0)
-            
-            let repeatScrollCloud = SKAction.repeatForever(SKAction.sequence([moveCloud,resetCloud]))
-            
-            for i in 0..<needCloudNumber {
-                let sprite = SKSpriteNode(texture: cloudTexture)
-                sprite.zPosition = -100
-                
-                sprite.position = CGPoint(
-                    x: cloudTexture.size().width / 2 + cloudTexture.size().width * CGFloat(i),
-                    y: self.size.height - cloudTexture.size().height / 2
-                )
-                
-                
-                sprite.run(repeatScrollCloud)
-                scrollNode.addChild(sprite)
-            }
+            sprite.run(repeatScrollCloud)
+            scrollNode.addChild(sprite)
         }
-
+    }
+    
+    
+    func setupWall() {
+        let wallTexture = SKTexture(imageNamed: "wall")
+        wallTexture.filteringMode = .linear
         
-        func setupWall() {
-            let wallTexture = SKTexture(imageNamed: "wall")
-            wallTexture.filteringMode = .linear
-            
-            let movingDistance = CGFloat(self.frame.size.width + wallTexture.size().width)
-            
-            let moveWall = SKAction.moveBy(x: -movingDistance, y: 0, duration: 4)
-            
-            let removewall = SKAction.removeFromParent()
-            
-            let wallAnimation = SKAction.sequence([moveWall,removewall])
-            
-            let birdSize = SKTexture(imageNamed: "bird_a").size()
-            
-            let slit_length = birdSize.height * 3
-            
-            let random_y_range = birdSize.height * 2.5
-            
-            let groundSize = SKTexture(imageNamed: "ground").size()
-            
-            let center_y = groundSize.height + (self.frame.size.height - groundSize.height) / 2
-            
-            let under_wall_lowest_y = center_y - slit_length / 2 - wallTexture.size().height / 2 - random_y_range / 2
-            
-            let createWallAnimation = SKAction.run({
-                
-                let wall = SKNode()
-                wall.position = CGPoint(x: self.frame.size.width + wallTexture.size().width / 2, y: 0)
-                wall.zPosition = -50
-                
-                let random_y = CGFloat.random(in: 0..<random_y_range)
-                
-                let under_wall_y = under_wall_lowest_y + random_y
-                
-                let under = SKSpriteNode(texture: wallTexture)
-                under.position = CGPoint(x: 0, y: under_wall_y)
-                wall.addChild(under)
-                under.physicsBody = SKPhysicsBody(rectangleOf: wallTexture.size())
-                under.physicsBody?.categoryBitMask = self.wallCategory
-                under.physicsBody?.isDynamic = false
-                
-                let upper = SKSpriteNode(texture: wallTexture)
-                upper.position = CGPoint(x: 0, y: under_wall_y + wallTexture.size().height + slit_length)
-                upper.physicsBody = SKPhysicsBody(rectangleOf: wallTexture.size())
-                upper.physicsBody?.categoryBitMask = self.wallCategory
-                upper.physicsBody?.isDynamic = false
-                
-                wall.addChild(upper)
-            
-                let scoreNode = SKNode()
-                
-                scoreNode.position = CGPoint(x: upper.size.width + birdSize.width / 2, y: self.frame.size.height)
-
-                scoreNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upper.size.width, height: self.frame.size.height))
-                scoreNode.physicsBody?.isDynamic = false
-                scoreNode.physicsBody?.categoryBitMask = self.scoreCategory
-                scoreNode.physicsBody?.contactTestBitMask = self.birdCategory
-                wall.addChild(scoreNode)
-                
-                wall.run(wallAnimation)
-                self.wallNode.addChild(wall)
-            })
-            
-                let waitAnimation = SKAction.wait(forDuration: 2)
+        let movingDistance = CGFloat(self.frame.size.width + wallTexture.size().width)
         
-                let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createWallAnimation,waitAnimation]))
-
-                
-                wallNode.run(repeatForeverAnimation)
-        }
-
+        let moveWall = SKAction.moveBy(x: -movingDistance, y: 0, duration: 4)
         
-        func setupBird(){
+        let removewall = SKAction.removeFromParent()
+        
+        let wallAnimation = SKAction.sequence([moveWall,removewall])
+        
+        let birdSize = SKTexture(imageNamed: "bird_a").size()
+        
+        let slit_length = birdSize.height * 3
+        
+        let random_y_range = birdSize.height * 2.5
+        
+        let groundSize = SKTexture(imageNamed: "ground").size()
+        
+        let center_y = groundSize.height + (self.frame.size.height - groundSize.height) / 2
+        
+        let under_wall_lowest_y = center_y - slit_length / 2 - wallTexture.size().height / 2 - random_y_range / 2
+        
+        let createWallAnimation = SKAction.run({
             
-            let birdTextureA = SKTexture(imageNamed: "bird_a")
-            birdTextureA.filteringMode = .linear
+            let wall = SKNode()
+            wall.position = CGPoint(x: self.frame.size.width + wallTexture.size().width / 2, y: 0)
+            wall.zPosition = -50
             
-            let birdTextureB = SKTexture(imageNamed: "bird_b")
-            birdTextureB.filteringMode = .linear
+            let random_y = CGFloat.random(in: 0..<random_y_range)
             
-            let texturesAnimation = SKAction.animate(with: [birdTextureA,birdTextureB], timePerFrame: 0.2)
+            let under_wall_y = under_wall_lowest_y + random_y
             
-            let flap = SKAction.repeatForever(texturesAnimation)
+            let under = SKSpriteNode(texture: wallTexture)
+            under.position = CGPoint(x: 0, y: under_wall_y)
+            wall.addChild(under)
+            under.physicsBody = SKPhysicsBody(rectangleOf: wallTexture.size())
+            under.physicsBody?.categoryBitMask = self.wallCategory
+            under.physicsBody?.isDynamic = false
             
-            bird = SKSpriteNode(texture: birdTextureA)
-            bird.position = CGPoint(x: self.frame.size.width * 0.2, y: self.frame.size.height * 0.7)
+            let upper = SKSpriteNode(texture: wallTexture)
+            upper.position = CGPoint(x: 0, y: under_wall_y + wallTexture.size().height + slit_length)
+            upper.physicsBody = SKPhysicsBody(rectangleOf: wallTexture.size())
+            upper.physicsBody?.categoryBitMask = self.wallCategory
+            upper.physicsBody?.isDynamic = false
             
-            bird.physicsBody = SKPhysicsBody(circleOfRadius: bird.size.height / 2)
-            bird.physicsBody?.allowsRotation = false
-            bird.physicsBody?.categoryBitMask = birdCategory
-            bird.physicsBody?.collisionBitMask = groundCategory | wallCategory
-            bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory | coinCategory
-            bird.run(flap)
+            wall.addChild(upper)
             
-            addChild(bird)
-        }
+            let scoreNode = SKNode()
+            
+            scoreNode.position = CGPoint(x: upper.size.width + birdSize.width / 2, y: self.frame.size.height)
+            
+            scoreNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upper.size.width, height: self.frame.size.height))
+            scoreNode.physicsBody?.isDynamic = false
+            scoreNode.physicsBody?.categoryBitMask = self.scoreCategory
+            scoreNode.physicsBody?.contactTestBitMask = self.birdCategory
+            wall.addChild(scoreNode)
+            
+            wall.run(wallAnimation)
+            self.wallNode.addChild(wall)
+        })
+        
+        let waitAnimation = SKAction.wait(forDuration: 2)
+        
+        let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createWallAnimation,waitAnimation]))
+        
+        
+        wallNode.run(repeatForeverAnimation)
+    }
+    
+    
+    func setupBird(){
+        
+        let birdTextureA = SKTexture(imageNamed: "bird_a")
+        birdTextureA.filteringMode = .linear
+        
+        let birdTextureB = SKTexture(imageNamed: "bird_b")
+        birdTextureB.filteringMode = .linear
+        
+        let texturesAnimation = SKAction.animate(with: [birdTextureA,birdTextureB], timePerFrame: 0.2)
+        
+        let flap = SKAction.repeatForever(texturesAnimation)
+        
+        bird = SKSpriteNode(texture: birdTextureA)
+        bird.position = CGPoint(x: self.frame.size.width * 0.2, y: self.frame.size.height * 0.7)
+        
+        bird.physicsBody = SKPhysicsBody(circleOfRadius: bird.size.height / 2)
+        bird.physicsBody?.allowsRotation = false
+        bird.physicsBody?.categoryBitMask = birdCategory
+        bird.physicsBody?.collisionBitMask = groundCategory | wallCategory
+        bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory | coinCategory
+        bird.run(flap)
+        
+        addChild(bird)
+    }
     
     override func touchesBegan(_ touches: Set<UITouch>,with event: UIEvent?) {
         if scrollNode.speed > 0 {
@@ -248,53 +248,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
                 bestScoreLabelNode.text = "Best Score:\(bestScore)"
                 userDefaults.set(bestScore, forKey: "BEST")
                 userDefaults.synchronize()
-            } else if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory || (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
-                itemNode.removeFromParent()
-                let url: URL? = Bundle.main.url(forResource: "決定、ボタン押下47", withExtension: "mp3")
-                
-                soundEffect = try? AVAudioPlayer(contentsOf: url!)
-                soundEffect.play()
-                
-                print("ItemGet")
-                item += 1
-                itemLabelNode.text = "Item:\(item)"
-                
-                if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory {
-                    contact.bodyA.node?.removeFromParent()
-                }else if (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
-                    contact.bodyB.node?.removeFromParent()
-                }
-            }else{
-                print("GameOver")
-                scrollNode.speed = 0
-                bird.physicsBody?.collisionBitMask = groundCategory
-                let roll = SKAction.rotate(byAngle: CGFloat(Double.pi) * CGFloat(bird.position.y) * 0.01, duration: 1)
-                bird.run(roll, completion:{
-                self.bird.speed = 0
-                })
             }
+        } else if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory || (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
+            coin?.removeFromParent()
+            let url: URL? = Bundle.main.url(forResource: "決定、ボタン押下47", withExtension: "mp3")
+            
+            soundEffect = try? AVAudioPlayer(contentsOf: url!)
+            soundEffect.play()
+            
+            print("ItemGet")
+            item += 1
+            itemLabelNode.text = "Item:\(item)"
+            
+            if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory {
+                contact.bodyA.node?.removeFromParent()
+            }else if (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
+                contact.bodyB.node?.removeFromParent()
+            }
+        }else{
+            print("GameOver")
+            scrollNode.speed = 0
+            bird.physicsBody?.collisionBitMask = groundCategory
+            let roll = SKAction.rotate(byAngle: CGFloat(Double.pi) * CGFloat(bird.position.y) * 0.01, duration: 1)
+            bird.run(roll, completion:{
+                self.bird.speed = 0
+            })
         }
     }
-        //if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory || (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
-            
-            //itemNode.removeFromParent()
-            //let url: URL? = Bundle.main.url(forResource: "決定、ボタン押下47", withExtension: "mp3")
-            
-            //soundEffect = try? AVAudioPlayer(contentsOf: url!)
-            
-            //print("ItemGet")
-            //item += 1
-            //itemLabelNode.text = "Item:\(item)"
-            
-            //if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory {
-                //contact.bodyA.node?.removeFromParent()
-            //}else if (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
-                //contact.bodyB.node?.removeFromParent()
-            //}
-            
-        //}
-        
-    //}
+    
+    
     
     func restart() {
         
@@ -318,72 +300,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
     }
     
     func setupCoin(){
-        
         let coinTexture = SKTexture(imageNamed: "coin")
         coinTexture.filteringMode = .linear
         
         let movingDistance = CGFloat(self.frame.size.width + coinTexture.size().width)
-        
         let moveCoin = SKAction.moveBy(x: -movingDistance, y: 0, duration: 4)
-        
         let removecoin = SKAction.removeFromParent()
-        
         let coinAnimation = SKAction.sequence([moveCoin,removecoin])
-        
         let birdSize = SKTexture(imageNamed: "bird_a").size()
-        
         let slit_length = birdSize.height * 3
-        
         let random_y_range = birdSize.height * 2.5
-        
         let groundSize = SKTexture(imageNamed: "ground").size()
-        
         let center_y = groundSize.height + (self.frame.size.height - groundSize.height) / 2
-        
         let under_wall_lowest_y = center_y - slit_length / 2 - coinTexture.size().height / 2 - random_y_range / 2
-        
         let createCoinAnimation = SKAction.run({
-            
-            let coin = SKSpriteNode(texture: coinTexture)
-            let wallSize = SKTexture(imageNamed: "wall").size()
-            coin.position = CGPoint(x: self.frame.size.width + groundSize.width / 2.5 , y: 10)
-            coin.zPosition = -50
-            
             let random_y = CGFloat.random(in: 0..<random_y_range)
-            
-            let under_coin_y = under_wall_lowest_y + random_y
-            
-            
-            //let upperCoin = SKSpriteNode(texture: coinTexture)
-            coin.position = CGPoint(x: 0, y: under_coin_y + coinTexture.size().height + slit_length)
-            //upperCoin.physicsBody = SKPhysicsBody(circleOfRadius: coinTexture.size().height)
-            //upperCoin.physicsBody?.linearDamping = 0.2
-            coin.physicsBody = SKPhysicsBody(circleOfRadius: birdSize.height / 2)
-            coin.physicsBody = SKPhysicsBody(rectangleOf: coinTexture.size())
+            let coin_y = under_wall_lowest_y + random_y
+            let coin = SKSpriteNode(texture: coinTexture)
+            coin.position = CGPoint(x: self.frame.size.width + coinTexture.size().width / 2, y: coin_y)
+            coin.zPosition = -50.0
+            coin.physicsBody = SKPhysicsBody(circleOfRadius: coinTexture.size().width / 2)
             coin.physicsBody?.categoryBitMask = self.coinCategory
             coin.physicsBody?.isDynamic = false
-            
-            coin.addChild(coin)
-            
-            
-            let itemNode = SKNode()
-            itemNode.position = CGPoint(x: wallSize.width + birdSize.width / 2, y: self.frame.size.height)
-
-            itemNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: coin.size.width, height: self.frame.size.height))
-            itemNode.physicsBody?.isDynamic = false
-            itemNode.physicsBody?.categoryBitMask = self.coinCategory
-            itemNode.physicsBody?.contactTestBitMask = self.birdCategory
-            coin.addChild(itemNode)
-            
             coin.run(coinAnimation)
             self.itemNode.addChild(coin)
-            
         })
+        let waitAnimation = SKAction.wait(forDuration: 2)
+        let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createCoinAnimation,waitAnimation]))
+        let waitAnimation1 = SKAction.wait(forDuration: 1)
+        let repeatForeverAfter1 = SKAction.sequence([waitAnimation1,repeatForeverAnimation])
+        itemNode.run(repeatForeverAfter1)
         
-            let waitAnimation = SKAction.wait(forDuration: 2)
-    
-            let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createCoinAnimation,waitAnimation]))
-            itemNode.run(repeatForeverAnimation)
     }
     
     func setupItemLabel() {

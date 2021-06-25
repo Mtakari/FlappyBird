@@ -14,7 +14,7 @@
 		6B6B889A267C6A36005664E4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B6B8899267C6A36005664E4 /* Assets.xcassets */; };
 		6B6B889D267C6A36005664E4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6B6B889B267C6A36005664E4 /* LaunchScreen.storyboard */; };
 		6B775E9C26845E75007E9F1A /* 決定、ボタン押下47.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6B775E9B26845E75007E9F1A /* 決定、ボタン押下47.mp3 */; };
-		6B775EA4268492A3007E9F1A /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B775EA3268492A3007E9F1A /* GameScene.swift */; };
+		6B7F46DC268605660013F353 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B7F46DB268605660013F353 /* GameScene.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +27,7 @@
 		6B6B889C267C6A36005664E4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6B6B889E267C6A36005664E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6B775E9B26845E75007E9F1A /* 決定、ボタン押下47.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "決定、ボタン押下47.mp3"; sourceTree = "<group>"; };
-		6B775EA3268492A3007E9F1A /* GameScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GameScene.swift; path = ../../GameScene.swift; sourceTree = "<group>"; };
+		6B7F46DB268605660013F353 /* GameScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +60,7 @@
 		6B6B888F267C6A35005664E4 /* FlappyBird */ = {
 			isa = PBXGroup;
 			children = (
-				6B775EA3268492A3007E9F1A /* GameScene.swift */,
+				6B7F46DB268605660013F353 /* GameScene.swift */,
 				6B6B8890267C6A35005664E4 /* AppDelegate.swift */,
 				6B6B8892267C6A35005664E4 /* SceneDelegate.swift */,
 				6B6B8894267C6A35005664E4 /* ViewController.swift */,
@@ -146,7 +146,7 @@
 			files = (
 				6B6B8895267C6A35005664E4 /* ViewController.swift in Sources */,
 				6B6B8891267C6A35005664E4 /* AppDelegate.swift in Sources */,
-				6B775EA4268492A3007E9F1A /* GameScene.swift in Sources */,
+				6B7F46DC268605660013F353 /* GameScene.swift in Sources */,
 				6B6B8893267C6A35005664E4 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
