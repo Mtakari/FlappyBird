@@ -14,7 +14,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
     var wallNode: SKNode!
     var itemNode: SKNode!
     var bird: SKSpriteNode!
-    //var upperCoin: SKNode!
+    var coin: SKSpriteNode!
     var soundEffect: AVAudioPlayer!
     
     let birdCategory:UInt32 = 1 << 0
@@ -22,7 +22,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
     let wallCategory:UInt32 = 1 << 2
     let scoreCategory:UInt32 = 1 << 3
     let coinCategory:UInt32 = 1 << 4
-    let itemCategory:UInt32 = 1 << 5
+    //let itemCategory:UInt32 = 1 << 5
    
     var score = 0
     var scoreLabelNode:SKLabelNode!
@@ -219,7 +219,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
             bird.physicsBody?.allowsRotation = false
             bird.physicsBody?.categoryBitMask = birdCategory
             bird.physicsBody?.collisionBitMask = groundCategory | wallCategory
-            bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory | itemCategory
+            bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory | coinCategory
             bird.run(flap)
             
             addChild(bird)
@@ -248,38 +248,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
                 bestScoreLabelNode.text = "Best Score:\(bestScore)"
                 userDefaults.set(bestScore, forKey: "BEST")
                 userDefaults.synchronize()
-            }
-        }else{
-            print("GameOver")
-            scrollNode.speed = 0
-            bird.physicsBody?.collisionBitMask = groundCategory
-            let roll = SKAction.rotate(byAngle: CGFloat(Double.pi) * CGFloat(bird.position.y) * 0.01, duration: 1)
-            bird.run(roll, completion:{
+            } else if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory || (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
+                itemNode.removeFromParent()
+                let url: URL? = Bundle.main.url(forResource: "決定、ボタン押下47", withExtension: "mp3")
+                
+                soundEffect = try? AVAudioPlayer(contentsOf: url!)
+                soundEffect.play()
+                
+                print("ItemGet")
+                item += 1
+                itemLabelNode.text = "Item:\(item)"
+                
+                if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory {
+                    contact.bodyA.node?.removeFromParent()
+                }else if (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
+                    contact.bodyB.node?.removeFromParent()
+                }
+            }else{
+                print("GameOver")
+                scrollNode.speed = 0
+                bird.physicsBody?.collisionBitMask = groundCategory
+                let roll = SKAction.rotate(byAngle: CGFloat(Double.pi) * CGFloat(bird.position.y) * 0.01, duration: 1)
+                bird.run(roll, completion:{
                 self.bird.speed = 0
-            })
-        }
-        
-        
-        if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory {
-            
-            itemNode.removeFromParent()
-            let url: URL? = Bundle.main.url(forResource: "決定、ボタン押下47", withExtension: "mp3")
-            
-            soundEffect = try? AVAudioPlayer(contentsOf: url!)
-            
-            print("ItemGet")
-            item += 1
-            itemLabelNode.text = "Item:\(item)"
-            
-            if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory {
-                contact.bodyA.node?.removeFromParent()
-            }else if (contact.bodyB.categoryBitMask & itemCategory) == itemCategory {
-                contact.bodyB.node?.removeFromParent()
+                })
             }
-            
         }
-        
     }
+        //if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory || (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
+            
+            //itemNode.removeFromParent()
+            //let url: URL? = Bundle.main.url(forResource: "決定、ボタン押下47", withExtension: "mp3")
+            
+            //soundEffect = try? AVAudioPlayer(contentsOf: url!)
+            
+            //print("ItemGet")
+            //item += 1
+            //itemLabelNode.text = "Item:\(item)"
+            
+            //if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory {
+                //contact.bodyA.node?.removeFromParent()
+            //}else if (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
+                //contact.bodyB.node?.removeFromParent()
+            //}
+            
+        //}
+        
+    //}
     
     func restart() {
         
@@ -328,7 +343,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
         let under_wall_lowest_y = center_y - slit_length / 2 - coinTexture.size().height / 2 - random_y_range / 2
         
         let createCoinAnimation = SKAction.run({
-            let coin = SKNode()
+            
+            let coin = SKSpriteNode(texture: coinTexture)
             let wallSize = SKTexture(imageNamed: "wall").size()
             coin.position = CGPoint(x: self.frame.size.width + groundSize.width / 2.5 , y: 10)
             coin.zPosition = -50
@@ -338,24 +354,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
             let under_coin_y = under_wall_lowest_y + random_y
             
             
-            let upperCoin = SKSpriteNode(texture: coinTexture)
-            upperCoin.position = CGPoint(x: 0, y: under_coin_y + coinTexture.size().height + slit_length)
+            //let upperCoin = SKSpriteNode(texture: coinTexture)
+            coin.position = CGPoint(x: 0, y: under_coin_y + coinTexture.size().height + slit_length)
             //upperCoin.physicsBody = SKPhysicsBody(circleOfRadius: coinTexture.size().height)
             //upperCoin.physicsBody?.linearDamping = 0.2
-            upperCoin.physicsBody = SKPhysicsBody(circleOfRadius: birdSize.height / 2)
-            upperCoin.physicsBody = SKPhysicsBody(rectangleOf: coinTexture.size())
-            upperCoin.physicsBody?.categoryBitMask = self.coinCategory
-            upperCoin.physicsBody?.isDynamic = false
+            coin.physicsBody = SKPhysicsBody(circleOfRadius: birdSize.height / 2)
+            coin.physicsBody = SKPhysicsBody(rectangleOf: coinTexture.size())
+            coin.physicsBody?.categoryBitMask = self.coinCategory
+            coin.physicsBody?.isDynamic = false
             
-            coin.addChild(upperCoin)
+            coin.addChild(coin)
             
             
             let itemNode = SKNode()
             itemNode.position = CGPoint(x: wallSize.width + birdSize.width / 2, y: self.frame.size.height)
 
-            itemNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upperCoin.size.width, height: self.frame.size.height))
+            itemNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: coin.size.width, height: self.frame.size.height))
             itemNode.physicsBody?.isDynamic = false
-            itemNode.physicsBody?.categoryBitMask = self.itemCategory
+            itemNode.physicsBody?.categoryBitMask = self.coinCategory
             itemNode.physicsBody?.contactTestBitMask = self.birdCategory
             coin.addChild(itemNode)
             
