@@ -42,10 +42,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
         addChild(scrollNode)
         
         wallNode = SKNode()
-        addChild(wallNode)
+        scrollNode.addChild(wallNode)
+
         
         itemNode = SKNode()
-        addChild(itemNode)
+        scrollNode.addChild(itemNode)
         
         setupGround()
         setupCloud()
@@ -238,6 +239,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
         if scrollNode.speed <= 0 {
             return
         }
+        
         if (contact.bodyA.categoryBitMask & scoreCategory) == scoreCategory || (contact.bodyB.categoryBitMask & scoreCategory) == scoreCategory {
             print("ScoreUp")
             score += 1
@@ -272,6 +274,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
             let roll = SKAction.rotate(byAngle: CGFloat(Double.pi) * CGFloat(bird.position.y) * 0.01, duration: 1)
             bird.run(roll, completion:{
                 self.bird.speed = 0
+                
             })
         }
     }
